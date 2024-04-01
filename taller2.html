@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícies i Podcasts</title>
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .item {
+            width: 30%; /* Ajusta aquest valor segons les teves preferències */
+            margin: 1%;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .item img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html">Notícies del minut</a>
+
+    <div class="container">
+        <!-- Aquí s'afegirà dinàmicament el contingut -->
+    </div>
+
+    <script>
+        // Codi per llegir l'RSS i generar els elements HTML corresponents
+        fetch('https://www.ondacero.es/rss/8284.xml')
+            .then(response => response.text())
+            .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+            .then(data => {
+                const items = data.querySelectorAll('item');
+                const container = document.querySelector('.container');
+
+                items.forEach(item => {
+                    const titleElement = item.querySelector('title');
+                    const title = titleElement ? titleElement.textContent : '';
+
+                    const descriptionElement = item.querySelector('description');
+                    const description = descriptionElement ? descriptionElement.textContent : '';
+
+                    const enclosure = item.querySelector('enclosure');
+                    const mediaUrl = enclosure ? enclosure.getAttribute('url') : '';
+
+                    const div = document.createElement('div');
+                    div.classList.add('item');
+
+                    if (mediaUrl !== '') {
+                        const img = document.createElement('img');
+                        img.src = mediaUrl;
+                        div.appendChild(img);
+
+                        // Afegir reproductor d'àudio
+                        const audio = document.createElement('audio');
+                        audio.controls = true;
+                        audio.src = mediaUrl;
+                        div.appendChild(audio);
+                    }
+
+                    if (title !== '') {
+                        const h2 = document.createElement('h2');
+                        h2.textContent = title;
+                        div.appendChild(h2);
+                    }
+
+                    if (description !== '') {
+                        const p = document.createElement('p');
+                        p.textContent = description;
+                        div.appendChild(p);
+                    }
+
+                    container.appendChild(div);
+                });
+            })
+            .catch(err => console.error('Error:', err));
+    </script>
+</body>
+</html>
